@@ -1,0 +1,362 @@
+White Wine Exploratory Data Analysis by Irene Florez
+========================================================
+
+# Introduction 
+
+This project is a quick exploratory analysis project using R. 
+The aim of the project is to use R to explore the relationships between 
+data features.
+
+We will be using a wine data set available at 
+http://www3.dsi.uminho.pt/pcortez/wine/.
+
+'White Wine Quality' is a tidy dataset which contains 4,898 white wines
+with 11 variables quantifying the chemical properties of each wine. 
+At least 3 wine experts rated the quality of each wine, providing 
+a rating between 0 (very bad) and 10 (very excellent). 
+
+We will use univariate, bivariate, and multivariate analyses to explore
+the relationships between the data features and to tease out the quality 
+rating.  You can read the final summary and reflection at the end of this
+document. 
+
+## setup document
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(fig.width=12, fig.height=8, fig.path='Figs/',
+                      echo=FALSE, warning=FALSE, message=FALSE)
+```
+
+## load packages
+```{r echo=FALSE, message=FALSE, warning=FALSE, packages}
+# Load all of the packages
+
+library(ggplot2)
+library(dplyr)
+library(knitr)
+library(reshape2)
+library(GGally)
+library(gridExtra)
+library(memisc)
+
+
+
+```
+
+## Load the data
+```{r echo=FALSE, load_data}
+# Load the Data
+df = read.csv('wineQualityWhites.csv', header = T, row.names = 1)
+```
+
+# Univariate Plots Section
+
+## data variables
+```{r echo=FALSE, names}
+# review names of variables
+dim(df)
+names(df)
+```
+
+# there are 12 variables & a total of 4898 observations
+
+## data dimensions
+
+```{r echo=FALSE, summarize}
+#dimensions
+head(df, 5)
+summary(df)
+```
+
+
+```{r echo = FALSE, structure}
+#data structure
+str(df)
+```
+
+#all of the data observations are num or int, there are not factor data types
+
+## features review: quality
+```{r echo=FALSE, qualityLevels}
+#check levels 
+levels(df$quality)
+```
+
+```{r echo=FALSE, qualitySummary}
+#5 number summary of quality
+summary(df$quality)
+```
+
+# quality is a roughly normal bell shaped curve distribution
+# quality values are distributed between 3-9
+
+```{r echo=FALSE, quality_histogram}
+ggplot(data = df, mapping = aes(x=quality)) + 
+  geom_histogram(binwidth=1)
+```
+```{r echo=FALSE}
+ggplot(aes(x = quality), data = df) + 
+  geom_bar() + 
+  scale_x_continuous(breaks = seq(2, 10, 1))
+```
+
+## features review: alcohol
+
+```{r, echo=FALSE }
+summary(df$alcohol)
+```
+
+```{r, echo=FALSE }
+fah = plot.hist('alcohol', df, 100)  
+fah1 = plot.hist('alcohol', df, 100) + 
+  scale_x_continuous(limits = c(4, 12), breaks = seq(4, 12, 1))
+grid.arrange(fah, fah1)
+```
+
+```{r echo=FALSE, alcohol1}
+grid.arrange(ggplot(aes(x = alcohol), data = df) + 
+  geom_histogram() ,
+  ggplot(aes( x = 1, y = density ), data = df ) + 
+               geom_jitter(alpha = 0.1 ) +
+               geom_boxplot(alpha = 0.2, color = 'red' ), ncol = 2)
+  
+```
+
+```{r echo=FALSE, alcohol2}
+ggplot(aes(x = alcohol), data = df) + 
+  geom_histogram(binwidth = 0.1) + 
+  scale_x_continuous(breaks = seq(8, 14,1))
+  
+```
+
+## features review: sulphates
+```{r, echo=FALSE, sulphates1}
+summary(df$sulphates)
+```
+
+```{r, echo=FALSE, sulphates2}
+s0 = plot.hist('sulphates', df, 30)
+s1 =  ggplot(df, aes(y = sulphates, x = 1)) + 
+  geom_jitter(aes(x = 1, y = sulphates), alpha = 0.15) +
+  geom_boxplot(color = 'blue', alpha = 1/4) + coord_flip()
+s2 = plot.hist('sulphates', df, 75) 
+grid.arrange(s0, s1, s2)
+```
+
+
+```{r echo=FALSE, sulphate3}
+grid.arrange(ggplot(aes(x = sulphates), data = df) + 
+  geom_histogram(),
+ggplot(aes( x = 1, y = density ), data = df ) + 
+               geom_jitter(alpha = 0.1 ) +
+               geom_boxplot(alpha = 0.2, color = 'red' ), ncol = 2)
+```
+
+```{r echo=FALSE, sulphate4}
+ggplot(aes(x = sulphates), data = df) + geom_histogram(binwidth = 0.01)              
+```
+
+# Univariate Analysis
+
+# Bivariate Plots Section
+
+## alcohol & quality 
+
+```{r echo=FALSE, bivariate_alcohol1} 
+with(df, cor.test(alcohol, quality, method = 'pearson'))
+
+```
+
+```{r echo=FALSE, bivariate_alcohol2}
+#scatterplot of quality vs alcohol
+ggplot(aes(quality, alcohol), data = df) +
+  geom_jitter(alpha = 0.1)
+```
+
+```{r echo=FALSE, bivariate_alchohol3}
+ggplot(aes(x= factor(quality), y = alcohol ), data = df) +
+geom_jitter( alpha = .1)  +
+  geom_boxplot( alpha = .3,color = 'blue')+
+  stat_summary(fun.y = "mean", 
+               geom = "point", 
+               color = "red", 
+               shape = 8, 
+               size = 4)
+```
+
+```{r echo=FALSE, bivariate_alcohol4}
+ggplot(aes(x = quality, y = alcohol), data = df) + 
+  geom_boxplot(aes(group = quality))
+```
+
+```{r echo=FALSE, bivariate_alcohol5}
+ggplot(aes(x = alcohol, y = quality), data = df) + 
+  geom_jitter(alpha = 0.1,color = 'orange') + 
+  geom_smooth()
+```
+
+```{r echo=FALSE, bivariate_alcohol6}
+#trimming big outliers
+ggplot(aes(x = alcohol, y = quality), data = df) + 
+  geom_jitter(alpha = 0.1, color = 'orange') + 
+  xlim(quantile(df$alcohol, 0.01), quantile(df$alcohol,0.99)) +
+  geom_smooth()
+```
+
+## sulphates & quality
+
+```{r echo=FALSE, , bivariate_sulphate1}
+#plot the sulphates vs quality
+ggplot(aes(quality, sulphates), data = df) +
+  geom_jitter(alpha = 0.1)
+
+```
+
+```{r echo=FALSE, bivariate_sulphate2}
+ggplot(aes(x= factor(quality), y = sulphates ), data = df) +
+geom_jitter( alpha = .1)  +
+  geom_boxplot( alpha = .3,color = 'blue')+
+  stat_summary(fun.y = "mean", 
+               geom = "point", 
+               color = "red", 
+               shape = 8, 
+               size = 4)
+```
+
+```{r echo=FALSE, bivariate_sulphate3}
+ggplot(aes(x = quality, y =sulphates), data = df) + 
+  geom_boxplot(aes(group = quality))
+```
+
+```{r echo=FALSE, bivariate_sulphate4}
+#removing big outliers
+ggplot(aes(x = quality, y = sulphates), data = df) + 
+  geom_boxplot(aes(group = quality)) + 
+  ylim(quantile(df$sulphates, 0.01), quantile(df$sulphates, 0.99))
+```
+
+```{r echo=FALSE, bivariate_sulphate5}
+ggplot(aes(x = sulphates, y = quality), data = df) + 
+  geom_jitter(alpha = 0.1,  color = 'orange')  + 
+  xlim(quantile(df$sulphates, 0.01), quantile(df$sulphates, 0.99)) + 
+  geom_smooth()
+```
+
+## alcohol & sulphates
+
+```{r echo=FALSE, bivariate_sulphate_alcohol}
+with(subset(df, df$alcohol>11), cor.test(sulphates, 
+                                         alcohol, method = 'pearson'))
+```
+
+```{r echo=FALSE, bivariate_sulphate_alcohol2}
+ggplot(aes(alcohol, sulphates), data = df) +
+  geom_point(position = 'jitter', alpha= 0.1)
+```
+
+# Multivariate Plots Section
+
+```{r echo=FALSE, Multivariate_Plots}
+
+```
+
+```{r echo=FALSE, multivariate_alcohol_sulphate}
+ggplot(aes(x = alcohol, 
+           y = sulphates, color = factor(quality)), 
+       data = df) + 
+  ylim(quantile(df$sulphates, 0.01), quantile(df$sulphates, 0.99)) +
+      geom_point(alpha = 0.8, size = 1) +
+      geom_smooth(method = "lm", se = FALSE,size=1)  +
+  scale_color_brewer(type='seq',
+                   guide=guide_legend(title='Quality'))
+```
+
+```{r echo=FALSE}
+#Change the quality variable to an ordered factor
+df$quality.int <- df$quality
+df$quality <- factor(df$quality, ordered = TRUE)
+str(df$quality)
+
+```
+
+```{r echo=FALSE}
+ggplot(aes(density, alcohol, color = quality), data = df) +
+  geom_point() +
+  scale_color_brewer(type = 'qual')
+
+```
+
+
+------
+
+# Final Plots and Summary
+
+### Plot One
+```{r echo=FALSE}
+ggplot(aes(density, alcohol, color = quality), data = df) +
+  geom_point() +
+  scale_color_brewer(type = 'qual')+
+  ggtitle('Relationship between alchohol, density, and quality ')
+
+```
+
+### Description One
+Alchohol has a positive relationship (.43) with quality. Generally, higher quality wines will have higher alchohol content. Alchohol has a negative relationship with density.
+
+### Plot Two
+```{r echo=FALSE}
+ggplot(aes(x= factor(quality), y = alcohol ), data = df) +
+geom_jitter( alpha = .1)  +
+  geom_boxplot( alpha = .3,color = 'blue')+
+  stat_summary(fun.y = "mean", 
+               geom = "point", 
+               color = "red", 
+               shape = 8, 
+               size = 4)+
+  ggtitle('Relationship & distribution of alcohol and quality')
+```
+
+### Description Two
+
+There's a high concentration of 5-7 quality wines... and these largely 
+have alchohol levels between 8.5-13.5 
+
+### Plot Three
+```{r, echo=FALSE}
+
+s0 = plot.hist('sulphates', df, 30)
+s1 =  ggplot(df, aes(y = sulphates, x = 1)) + 
+  geom_jitter(aes(x = 1, y = sulphates), alpha = 0.15) +
+  geom_boxplot(color = 'blue', alpha = 1/4) + coord_flip()
+s2 = plot.hist('sulphates', df, 75) 
+
+
+title1="A deeper look at sulphates"
+
+grid.arrange(s0, s1, s2+theme(legend.position="none"), top=title1,
+             layout_matrix=matrix(c(1,1,2,3,4,4), ncol=2, byrow=TRUE),heights=c(1,1.5,0.3))
+
+
+```
+
+
+### Description Three
+Sulphates range from .2 to 1.2 and are mostly centered around .5
+
+------
+
+# Reflection
+
+EDA results: We reviewed three features in this data set: alcohol, quality, 
+and sulphates. We found that alchohol has a positive relationship (.43) with 
+quality. Generally, higher quality wines will have higher alchohol content. 
+Sulphates and alchohol content generally do not have a strong relationship. 
+
+Process reflection: Here we used plotting (scatterplots, histograms, 
+boxplots, and line graphs). 
+
+In the future, I would like to do a correlation matrix using all of the variables. 
+I would also like to review ratios such as quality / alcohol. Secondly, I would 
+like to do a deeper dive into alcohol and density.  Lastly, I would like to create 
+a model which with observations can predict wine quality with some degree of confidence. 
+And overall, I would like more practice with transparency, jitter, smoothing, and 
+limiting axes. 
