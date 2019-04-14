@@ -42,7 +42,7 @@ library(memisc)
 
 ```
 
-## Load the data
+## load the data
 ```{r echo=FALSE, load_data}
 # Load the Data
 df = read.csv('wineQualityWhites.csv', header = T, row.names = 1)
@@ -57,7 +57,7 @@ dim(df)
 names(df)
 ```
 
-# there are 12 variables & a total of 4898 observations
+### * there are 12 variables & a total of 4898 observations
 
 ## data dimensions
 
@@ -73,7 +73,7 @@ summary(df)
 str(df)
 ```
 
-#all of the data observations are num or int, there are not factor data types
+### * all of the data observations are num or int, there are not factor data types
 
 ## features review: quality
 ```{r echo=FALSE, qualityLevels}
@@ -86,8 +86,8 @@ levels(df$quality)
 summary(df$quality)
 ```
 
-# quality is a roughly normal bell shaped curve distribution
-# quality values are distributed between 3-9
+### * quality is a roughly normal bell shaped curve distribution
+### * quality values are distributed between 3-9
 
 ```{r echo=FALSE, quality_histogram}
 ggplot(data = df, mapping = aes(x=quality)) + 
@@ -106,10 +106,21 @@ summary(df$alcohol)
 ```
 
 ```{r, echo=FALSE }
-fah = plot.hist('alcohol', df, 100)  
-fah1 = plot.hist('alcohol', df, 100) + 
+hist(df$alcohol)
+```
+
+```{r, echo=FALSE}
+plot.hist <- function(xvariable, df, bins) 
+  {ggplot(df, aes_string(x = xvariable)) + 
+   geom_histogram(bins = bins)
+}
+```
+
+```{r, echo=FALSE }
+t0 = plot.hist('alcohol', df, 100)  
+t1 = plot.hist('alcohol', df, 100) + 
   scale_x_continuous(limits = c(4, 12), breaks = seq(4, 12, 1))
-grid.arrange(fah, fah1)
+grid.arrange(t0, t1)
 ```
 
 ```{r echo=FALSE, alcohol1}
@@ -204,7 +215,7 @@ ggplot(aes(x = alcohol, y = quality), data = df) +
 
 ## sulphates & quality
 
-```{r echo=FALSE, , bivariate_sulphate1}
+```{r echo=FALSE, bivariate_sulphate1}
 #plot the sulphates vs quality
 ggplot(aes(quality, sulphates), data = df) +
   geom_jitter(alpha = 0.1)
@@ -286,11 +297,11 @@ ggplot(aes(density, alcohol, color = quality), data = df) +
 ```
 
 
-------
+
 
 # Final Plots and Summary
 
-### Plot One
+## plot one
 ```{r echo=FALSE}
 ggplot(aes(density, alcohol, color = quality), data = df) +
   geom_point() +
@@ -299,10 +310,11 @@ ggplot(aes(density, alcohol, color = quality), data = df) +
 
 ```
 
-### Description One
-Alchohol has a positive relationship (.43) with quality. Generally, higher quality wines will have higher alchohol content. Alchohol has a negative relationship with density.
+### * Alchohol has a positive relationship (.43) with quality. 
+### * Generally, higher quality wines will have higher alchohol content. 
+### * Alchohol has a negative relationship with density.
 
-### Plot Two
+## plot two
 ```{r echo=FALSE}
 ggplot(aes(x= factor(quality), y = alcohol ), data = df) +
 geom_jitter( alpha = .1)  +
@@ -315,12 +327,10 @@ geom_jitter( alpha = .1)  +
   ggtitle('Relationship & distribution of alcohol and quality')
 ```
 
-### Description Two
+### * There's a high concentration of 5-7 quality wines... 
+### * and these largely have alchohol levels between 8.5-13.5 
 
-There's a high concentration of 5-7 quality wines... and these largely 
-have alchohol levels between 8.5-13.5 
-
-### Plot Three
+## plot three
 ```{r, echo=FALSE}
 
 s0 = plot.hist('sulphates', df, 30)
@@ -338,11 +348,9 @@ grid.arrange(s0, s1, s2+theme(legend.position="none"), top=title1,
 
 ```
 
+### * Sulphates range from .2 to 1.2 and are mostly centered around .5
 
-### Description Three
-Sulphates range from .2 to 1.2 and are mostly centered around .5
 
-------
 
 # Reflection
 
