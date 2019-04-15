@@ -20,9 +20,16 @@ the relationships between the data features and to tease out the quality
 rating.  You can read the final summary and reflection at the end of this
 document. 
 
+## Sources
+Created by: Paulo Cortez (Univ. Minho), Antonio Cerdeira, Fernando Almeida, Telmo Matos and Jose Reis (CVRVV) @ 2009
+
+* https://s3.amazonaws.com/udacity-hosted-downloads/ud651/wineQualityInfo.txt
+* http://www.wineskills.co.uk/winemaking/winemaking-knowledge-base/chemical-composition
+* https://waterhouse.ucdavis.edu/whats-in-wine/red-wine-composition
+
 ## setup document
 ```{r global_options, include=FALSE}
-knitr::opts_chunk$set(fig.width=12, fig.height=8, fig.path='Figs/',
+knitr::opts_chunk$set(fig.width=9, fig.height=5, fig.path='Figs/',
                       echo=FALSE, warning=FALSE, message=FALSE)
 ```
 
@@ -38,8 +45,6 @@ library(GGally)
 library(gridExtra)
 library(memisc)
 
-
-
 ```
 
 ## load the data
@@ -48,8 +53,6 @@ library(memisc)
 df = read.csv('wineQualityWhites.csv', header = T, row.names = 1)
 ```
 
-# Univariate Plots Section
-
 ## data variables
 ```{r echo=FALSE, names}
 # review names of variables
@@ -57,7 +60,16 @@ dim(df)
 names(df)
 ```
 
-### * there are 12 variables & a total of 4898 observations
+Dataset dimensions:
+There are 12 variables & a total of 4898 observations
+
+```{r echo = FALSE, structure}
+#data structure
+str(df)
+```
+
+Dataset structure:
+All of the data observations are num or int, there are not factor data types
 
 ## data dimensions
 
@@ -67,63 +79,70 @@ head(df, 5)
 summary(df)
 ```
 
+Dataset features:
+We will review quality, alcohol, sulphates, density, and sugar. 
 
-```{r echo = FALSE, structure}
-#data structure
-str(df)
-```
+# Univariate Plots Section
 
-### * all of the data observations are num or int, there are not factor data types
-
-## features review: quality
-```{r echo=FALSE, qualityLevels}
+## quality
+```{r echo=FALSE, quality_levels}
 #check levels 
 levels(df$quality)
 ```
 
-```{r echo=FALSE, qualitySummary}
-#5 number summary of quality
+```{r echo=FALSE, quality_summary}
+#summary of quality
 summary(df$quality)
 ```
 
-### * quality is a roughly normal bell shaped curve distribution
-### * quality values are distributed between 3-9
-
 ```{r echo=FALSE, quality_histogram}
+#quality histogram
 ggplot(data = df, mapping = aes(x=quality)) + 
   geom_histogram(binwidth=1)
 ```
-```{r echo=FALSE}
+```{r echo=FALSE, quality_barchart}
+#quality bar chart
 ggplot(aes(x = quality), data = df) + 
   geom_bar() + 
   scale_x_continuous(breaks = seq(2, 10, 1))
 ```
 
-## features review: alcohol
+Quality has a roughly normal bell shaped curve distribution
+Quality values are distributed between 3-9
+The mean is 5.88 and the median is 6.00.
+The largest frequency scored 6(44.88%) and
+a small number of wines scored 9(0.1%).
 
-```{r, echo=FALSE }
+## alcohol
+
+```{r, echo=FALSE, alcohol1}
+#alchohol summary
 summary(df$alcohol)
 ```
 
-```{r, echo=FALSE }
+```{r, echo=FALSE, alcohol2}
+#alcohol histogram
 hist(df$alcohol)
 ```
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, alcohol3}
+#distribution of alcohol
 plot.hist <- function(xvariable, df, bins) 
   {ggplot(df, aes_string(x = xvariable)) + 
    geom_histogram(bins = bins)
 }
 ```
 
-```{r, echo=FALSE }
+```{r, echo=FALSE, alcohol4}
+#histogram of alcohol
 t0 = plot.hist('alcohol', df, 100)  
 t1 = plot.hist('alcohol', df, 100) + 
   scale_x_continuous(limits = c(4, 12), breaks = seq(4, 12, 1))
 grid.arrange(t0, t1)
 ```
 
-```{r echo=FALSE, alcohol1}
+```{r echo=FALSE, alcohol5}
+#alcohol grid: histogram & box plot
 grid.arrange(ggplot(aes(x = alcohol), data = df) + 
   geom_histogram() ,
   ggplot(aes( x = 1, y = density ), data = df ) + 
@@ -132,29 +151,38 @@ grid.arrange(ggplot(aes(x = alcohol), data = df) +
   
 ```
 
-```{r echo=FALSE, alcohol2}
+```{r echo=FALSE, alcohol6}
+#alcohol histogram
 ggplot(aes(x = alcohol), data = df) + 
   geom_histogram(binwidth = 0.1) + 
   scale_x_continuous(breaks = seq(8, 14,1))
   
 ```
 
-## features review: sulphates
+Alcohol values range from 8-14.20
+The avarage alcohol value is 10.51
+The largest group by frequency, has a 9-9.5 alcohol count. 
+
+## sulphates
 ```{r, echo=FALSE, sulphates1}
 summary(df$sulphates)
 ```
 
 ```{r, echo=FALSE, sulphates2}
+#sulphates distribtion views & boxplot
 s0 = plot.hist('sulphates', df, 30)
 s1 =  ggplot(df, aes(y = sulphates, x = 1)) + 
   geom_jitter(aes(x = 1, y = sulphates), alpha = 0.15) +
   geom_boxplot(color = 'blue', alpha = 1/4) + coord_flip()
 s2 = plot.hist('sulphates', df, 75) 
 grid.arrange(s0, s1, s2)
+
+# x="sulphates (potassium sulphate - g / dm3)"
 ```
 
 
 ```{r echo=FALSE, sulphate3}
+#sulphate histogram and scatterboxplot
 grid.arrange(ggplot(aes(x = sulphates), data = df) + 
   geom_histogram(),
 ggplot(aes( x = 1, y = density ), data = df ) + 
@@ -163,16 +191,75 @@ ggplot(aes( x = 1, y = density ), data = df ) +
 ```
 
 ```{r echo=FALSE, sulphate4}
+#sulphate histogram
 ggplot(aes(x = sulphates), data = df) + geom_histogram(binwidth = 0.01)              
 ```
 
-# Univariate Analysis
+Sulphate values range from .22 to 1.08
+The average sulphate value is .48
+The majority of wines have between .3 and .6 sulphate content. 
+
+## density
+```{r, echo=FALSE, density1}
+#density summary
+summary(df$density)
+```
+
+```{r echo=FALSE, density2}
+#density histogram
+ggplot(aes(x = density), data = df) + geom_histogram(binwidth = 0.01)              
+```
+
+```{r, echo=FALSE, density3}
+#density histogram views and scatter boxplot
+s0 = plot.hist('density', df, 30)
+s1 =  ggplot(df, aes(y = density, x = 1)) + 
+  geom_jitter(aes(x = 1, y = density), alpha = 0.15) +
+  geom_boxplot(color = 'blue', alpha = 1/4) + coord_flip()
+s2 = plot.hist('density', df, 75) 
+grid.arrange(s0, s1, s2)
+```
+White wine density falls between .98 - 1.03, with a mean of .99
+The density content is closely grouped together for the majority of wines. 
+The first histogram is shifted to the left, which means density variable has at least one outlier. 
+
+## residual_sugar
+```{r, echo=FALSE, residual.sugar1}
+summary(df$residual.sugar)
+```
+
+```{r echo=FALSE, residual_sugar2}
+#residual.sugar histogram
+ggplot(aes(x = residual.sugar), data = df) + geom_histogram(binwidth = 0.01)              
+```
+
+```{r, echo=FALSE, residual_sugar3}
+#residual sugar histogram views and scatter boxplot
+s0 = plot.hist('residual.sugar', df, 30)
+s1 =  ggplot(df, aes(y = residual.sugar, x = 1)) + 
+  geom_jitter(aes(x = 1, y = residual.sugar), alpha = 0.15) +
+  geom_boxplot(color = 'blue', alpha = 1/4) + coord_flip()
+s2 = plot.hist('residual.sugar', df, 75) 
+grid.arrange(s0, s1, s2)
+```
+The majority of white wines in the dataset have a low residual sugar level. 
+As with density, the histogram of the amount of residual suger 
+is shifted to the left. This means residual sugar may contain outliers. 
 
 # Bivariate Plots Section
+```{r echo=FALSE, bivariate_plots1}
+#correlation grid looking at all variables
+ggcorr(df, nbreaks = 4, palette = "RdGy", label = TRUE, label_size = 3, 
+       label_color = "white")
+```
+
+Density and alcohol have the strongest relationship
+Alchohol has a negative relationship with density.
 
 ## alcohol & quality 
 
 ```{r echo=FALSE, bivariate_alcohol1} 
+#correlation of alcohol and quality
 with(df, cor.test(alcohol, quality, method = 'pearson'))
 
 ```
@@ -184,6 +271,7 @@ ggplot(aes(quality, alcohol), data = df) +
 ```
 
 ```{r echo=FALSE, bivariate_alchohol3}
+#quality/alcohol scatter boxplot
 ggplot(aes(x= factor(quality), y = alcohol ), data = df) +
 geom_jitter( alpha = .1)  +
   geom_boxplot( alpha = .3,color = 'blue')+
@@ -191,27 +279,40 @@ geom_jitter( alpha = .1)  +
                geom = "point", 
                color = "red", 
                shape = 8, 
-               size = 4)
+               size = 4) +
+  geom_smooth(se = FALSE, method = "lm", aes(group=1),
+              color = "darkgreen")
 ```
 
 ```{r echo=FALSE, bivariate_alcohol4}
+#quality/alcohol boxplot
 ggplot(aes(x = quality, y = alcohol), data = df) + 
-  geom_boxplot(aes(group = quality))
+  geom_boxplot(aes(group = quality))+
+  geom_smooth(se = FALSE, method = "lm", aes(group=1),
+              color = "darkgreen")
 ```
 
 ```{r echo=FALSE, bivariate_alcohol5}
+#plot the alcohol vs quality
 ggplot(aes(x = alcohol, y = quality), data = df) + 
   geom_jitter(alpha = 0.1,color = 'orange') + 
   geom_smooth()
 ```
 
+Now let's remove the outliers
+
 ```{r echo=FALSE, bivariate_alcohol6}
+#plot the alcohol vs quality
 #trimming big outliers
 ggplot(aes(x = alcohol, y = quality), data = df) + 
   geom_jitter(alpha = 0.1, color = 'orange') + 
   xlim(quantile(df$alcohol, 0.01), quantile(df$alcohol,0.99)) +
   geom_smooth()
 ```
+
+Alchohol has a positive relationship (.43) with quality. 
+Generally, higher quality wines will have higher alchohol content. 
+
 
 ## sulphates & quality
 
@@ -223,6 +324,7 @@ ggplot(aes(quality, sulphates), data = df) +
 ```
 
 ```{r echo=FALSE, bivariate_sulphate2}
+#plot sulphates vs quality
 ggplot(aes(x= factor(quality), y = sulphates ), data = df) +
 geom_jitter( alpha = .1)  +
   geom_boxplot( alpha = .3,color = 'blue')+
@@ -234,11 +336,14 @@ geom_jitter( alpha = .1)  +
 ```
 
 ```{r echo=FALSE, bivariate_sulphate3}
+#boxplot sulphates vs quality
 ggplot(aes(x = quality, y =sulphates), data = df) + 
   geom_boxplot(aes(group = quality))
 ```
+Now let's remove outliers
 
 ```{r echo=FALSE, bivariate_sulphate4}
+#boxplot sulphates vs quality
 #removing big outliers
 ggplot(aes(x = quality, y = sulphates), data = df) + 
   geom_boxplot(aes(group = quality)) + 
@@ -246,31 +351,60 @@ ggplot(aes(x = quality, y = sulphates), data = df) +
 ```
 
 ```{r echo=FALSE, bivariate_sulphate5}
+#plot  sulphates vs quality
 ggplot(aes(x = sulphates, y = quality), data = df) + 
   geom_jitter(alpha = 0.1,  color = 'orange')  + 
   xlim(quantile(df$sulphates, 0.01), quantile(df$sulphates, 0.99)) + 
   geom_smooth()
 ```
 
+Generally, as quality increases, sulphate content increases; but decreases when it 
+reaches a 7.5 quality score.  
+
 ## alcohol & sulphates
 
-```{r echo=FALSE, bivariate_sulphate_alcohol}
+```{r echo=FALSE, bivariate_sulphate_alcohol1}
+#pearson method of correlation analysis
 with(subset(df, df$alcohol>11), cor.test(sulphates, 
                                          alcohol, method = 'pearson'))
 ```
 
 ```{r echo=FALSE, bivariate_sulphate_alcohol2}
+#plot sulphates and alcohol
 ggplot(aes(alcohol, sulphates), data = df) +
   geom_point(position = 'jitter', alpha= 0.1)
 ```
+Alcohol and sulphates have a weak relationship. 
 
+## density, & sugar
+
+```{r echo=FALSE, bivariate_sugar1}
+#plot density and residual.sugar
+ggplot(aes(x = density, y =residual.sugar), data = df) + 
+    geom_point(position = 'jitter', alpha= 0.1)
+  #geom_boxplot(aes(group = quality))
+```
+
+Density and residual sugar contents are both low count variables. 
+Generally, the higher the density, the higher the residual sugar content. 
+
+```{r echo=FALSE}
+#Change the quality variable to an ordered factor
+df$quality.int <- df$quality
+df$quality <- factor(df$quality, ordered = TRUE)
+str(df$quality)
+
+```
 # Multivariate Plots Section
 
 ```{r echo=FALSE, Multivariate_Plots}
 
 ```
 
+## alcohol, sulphates, & quality
+
 ```{r echo=FALSE, multivariate_alcohol_sulphate}
+#plot alcohol, sulphates, and quality
 ggplot(aes(x = alcohol, 
            y = sulphates, color = factor(quality)), 
        data = df) + 
@@ -281,20 +415,50 @@ ggplot(aes(x = alcohol,
                    guide=guide_legend(title='Quality'))
 ```
 
-```{r echo=FALSE}
-#Change the quality variable to an ordered factor
-df$quality.int <- df$quality
-df$quality <- factor(df$quality, ordered = TRUE)
-str(df$quality)
+## alcohol, density, & quality
 
+```{r echo=FALSE, multivariate_alcohol_density}
+#plot alcohol, density, and quality
+ggplot(aes(x = alcohol, 
+           y = density, color = factor(quality)), 
+       data = df) + 
+  ylim(quantile(df$density, 0.01), quantile(df$density, 0.99)) +
+      geom_point(alpha = 0.8, size = 1) +
+      geom_smooth(method = "lm", se = FALSE,size=1)  +
+  scale_color_brewer(type='seq',
+                   guide=guide_legend(title='Quality'))
 ```
 
-```{r echo=FALSE}
+```{r echo=FALSE, multivariate_alcohol_density_quality}
+# scatterplot - density and alcohol, by quality levels
 ggplot(aes(density, alcohol, color = quality), data = df) +
-  geom_point() +
-  scale_color_brewer(type = 'qual')
+  geom_point()  +
+  scale_color_brewer(palette = "RdYlBu", name="Quality",
+                     direction=-1) 
+  #http://colorbrewer2.org/#type=sequential&scheme=BuPu&n=7
 
 ```
+
+
+
+Findings: 
+Alchohol has a positive relationship (.43) with quality. 
+Generally, higher quality wines will have higher alchohol content. 
+Alchohol has a negative relationship with density.
+Wine density has a negative relationship with the quality.
+wines with a higher score tend to have lower density.
+
+Process:
+We can see that there are outliers in the density variable. 
+We will remove them for the final plots portion. 
+We will also add a darker background, for contrast. 
+This more clearly highlights the difference between good and bad wines (because a neutral color is used for the OK wines) and the levels in quality are highlighted by the gradation in color.
+
+
+Because quality is ordinal, we set ggplot() to use sequential or divergent color encoding (this is optimal because it gives a sense of gradation to the different levels in the data) - and not qualitative color encoding (which is for general discrete variables).
+
+Where sequential color encoding is used for pure ordinal discrete data and divergent color encoding is used if the data is both ordinal and follows a diverging scale (think "Good, Ok, Bad" - which can be viewed as appropriate for this dataset). For example, for the plot above:
+(where "RdYlBu" is a specific divergent color scheme, the name option changes the legend title and direction=-1 changes the order of the colors) 
 
 
 
@@ -302,20 +466,24 @@ ggplot(aes(density, alcohol, color = quality), data = df) +
 # Final Plots and Summary
 
 ## plot one
-```{r echo=FALSE}
-ggplot(aes(density, alcohol, color = quality), data = df) +
-  geom_point() +
-  scale_color_brewer(type = 'qual')+
-  ggtitle('Relationship between alchohol, density, and quality ')
-
+```{r echo=FALSE, final_correlation}
+#chart correlation of all variables
+ggcorr(df, geom = "blank", label = TRUE, hjust = 0.75) +
+  geom_point(size = 10, aes(color = coefficient > 0, 
+  alpha = abs(coefficient) > 0.3)) +
+  scale_alpha_manual(values = c("TRUE" = 0.25, "FALSE" = 0)) +
+  guides(color = FALSE, alpha = FALSE) 
+  ggtitle('Relationships & Correlations') 
 ```
+Alcohol and density have the strongest relationshop; these two are neagatively 
+related. Density and alcohol are the strongest determinants of quality. 
 
-### * Alchohol has a positive relationship (.43) with quality. 
-### * Generally, higher quality wines will have higher alchohol content. 
-### * Alchohol has a negative relationship with density.
+The amount of residual sugar has a weak relationship wih the quality of wine.
+
 
 ## plot two
-```{r echo=FALSE}
+```{r echo=FALSE, final_alcohol_q_scatter_boxplot}
+#plot quality and alcohol
 ggplot(aes(x= factor(quality), y = alcohol ), data = df) +
 geom_jitter( alpha = .1)  +
   geom_boxplot( alpha = .3,color = 'blue')+
@@ -324,40 +492,68 @@ geom_jitter( alpha = .1)  +
                color = "red", 
                shape = 8, 
                size = 4)+
-  ggtitle('Relationship & distribution of alcohol and quality')
+  ggtitle('Relationship & distribution of alcohol and quality') +
+  labs(x="Alcohol (% by Volume)", y = "quality (score between 0 and 10)")
 ```
 
-### * There's a high concentration of 5-7 quality wines... 
-### * and these largely have alchohol levels between 8.5-13.5 
+There's a high concentration of 5-7 quality wines... 
+And these largely have alchohol levels between 8.5-13.5 
+
+
 
 ## plot three
-```{r, echo=FALSE}
+```{r echo=FALSE, final_scatterplot}
+# scatterplot - density and alcohol, by quality levels
+ggplot(aes(density, 
+           alcohol, 
+           color = quality), 
+       data = subset(df, 
+                     density < quantile(df$density, 0.99)
+                     )
+       ) +
+  geom_point()  +
+  scale_color_brewer(palette = "RdYlBu", name="Quality",
+                     direction=-1) +
+  theme(panel.grid.minor = element_blank(), 
+        panel.background = element_rect(fill = "darkgrey")) +
+  xlab(expression(Density~(g/cm^{3}))) +
+  ylab("Alcohol (% by Volume)") 
+  ggtitle('Relationship & distribution of alcohol, density, and quality') 
+#http://colorbrewer2.org/#type=sequential&scheme=BuPu&n=7
 
-s0 = plot.hist('sulphates', df, 30)
-s1 =  ggplot(df, aes(y = sulphates, x = 1)) + 
-  geom_jitter(aes(x = 1, y = sulphates), alpha = 0.15) +
-  geom_boxplot(color = 'blue', alpha = 1/4) + coord_flip()
-s2 = plot.hist('sulphates', df, 75) 
-
-
-title1="A deeper look at sulphates"
-
-grid.arrange(s0, s1, s2+theme(legend.position="none"), top=title1,
-             layout_matrix=matrix(c(1,1,2,3,4,4), ncol=2, byrow=TRUE),heights=c(1,1.5,0.3))
-
-
+      
 ```
 
-### * Sulphates range from .2 to 1.2 and are mostly centered around .5
+Findings:
+Alchohol has a positive relationship (.43) with quality.
+Generally, higher quality wines will have higher alchohol content. 
+Alchohol has a negative relationship with density.
+Density of wine has a negative relationship with the qaulity of wine.
+
+Process:
+We removed the outliers in the density variable and added a darker background, for contrast. 
+This more clearly highlights the difference between good and bad wines (because a neutral color is used for the OK wines) and the levels in quality are highlighted by the gradation in color.
+
+Because quality is ordinal, we set ggplot() to use sequential or divergent color encoding (this is optimal because it gives a sense of gradation to the different levels in the data) - and not qualitative color encoding (which is for general discrete variables).
+
+Where sequential color encoding is used for pure ordinal discrete data and divergent color encoding is used if the data is both ordinal and follows a diverging scale (think "Good, Ok, Bad" - which can be viewed as appropriate for this dataset). For example, for the plot above:
+(where "RdYlBu" is a specific divergent color scheme, the name option changes the legend title and direction=-1 changes the order of the colors) 
 
 
 
 # Reflection
 
-EDA results: We reviewed three features in this data set: alcohol, quality, 
-and sulphates. We found that alchohol has a positive relationship (.43) with 
-quality. Generally, higher quality wines will have higher alchohol content. 
-Sulphates and alchohol content generally do not have a strong relationship. 
+EDA results: We reviewed six features in this data set: quality, alcohol, density, sulphates, 
+and residual sugar. 
+1) Density is the best predictor of quality. Higher quality wines tend to have 
+lower density and higher alcohol content.
+2) Alchohol has a positive relationship (.43) with quality. 
+Generally, higher quality wines will have higher alchohol content. 
+3) Sulphates and alchohol content generally do not have a strong relationship. 
+4) The amount of residual sugar has a weak relationship wih the quality of wine.
+Overall, higher quality wines tend to have low residual sugar content. 
+Generally, as density increases, residual sugar will also increase
+
 
 Process reflection: Here we used plotting (scatterplots, histograms, 
 boxplots, and line graphs). 
